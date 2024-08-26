@@ -369,7 +369,7 @@ func buildReleaseFiles(ctx context.Context, ownerID int64, repoVersion *packages
 
 	sw.Close()
 
-	releaseGpgContent, _ := packages_module.NewHashedBuffer()
+	releaseGpgContent, _ := packages_module.NewHashedebuffer()
 	defer releaseGpgContent.Close()
 
 	if err := openpgp.ArmoredDetachSign(releaseGpgContent, e, bytes.NewReader(buf.Bytes()), nil); err != nil {

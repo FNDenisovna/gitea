@@ -36,6 +36,7 @@ import (
 	"code.gitea.io/gitea/routers/api/packages/vagrant"
 	"code.gitea.io/gitea/services/auth"
 	"code.gitea.io/gitea/services/context"
+	"gitea/routers/api/packages/alt"
 )
 
 func reqPackageAccess(accessMode perm.AccessMode) func(ctx *context.Context) {
@@ -327,6 +328,25 @@ func CommonRoutes() *web.Router {
 				r.Group("", func() {
 					r.Put("/upload", debian.UploadPackageFile)
 					r.Delete("/{name}/{version}/{architecture}", debian.DeletePackageFile)
+				}, reqPackageAccess(perm.AccessModeWrite))
+			})
+		}, reqPackageAccess(perm.AccessModeRead))
+		r.Group("/alt", func() {
+			r.Get("/repository.key", alt.GetRepositoryKey)
+			r.Get("/base/release", alt.GetRepositoryInfo)
+			r.Group("/dists/{distribution}", func() {
+				r.Get("/{filename}", alt.GetRepositoryFile)
+				r.Get("/by-hash/{algorithm}/{hash}", alt.GetRepositoryFileByHash)
+				r.Group("/{component}/{architecture}", func() {
+					r.Get("/{filename}", alt.GetRepositoryFile)
+					r.Get("/by-hash/{algorithm}/{hash}", alt.GetRepositoryFileByHash)
+				})
+			})
+			r.Group("/pool/{distribution}/{component}", func() {
+				r.Get("/{name}-{version}.{architecture}.deb", alt.DownloadPackageFile)
+				r.Group("", func() {
+					r.Put("/upload", alt.UploadPackageFile)
+					r.Delete("/{name}/{version}/{architecture}", alt.DeletePackageFile)
 				}, reqPackageAccess(perm.AccessModeWrite))
 			})
 		}, reqPackageAccess(perm.AccessModeRead))
